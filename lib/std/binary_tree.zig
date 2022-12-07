@@ -166,6 +166,45 @@ pub fn StaticBinaryTree(comptime T: type, comptime levels: u8) type {
             it.reset();
             return it;
         }
+
+        pub const PostorderIterator = struct {
+            cursor: Cursor,
+            done: bool = false,
+
+            pub fn next(it: *PostorderIterator) ?T {
+                if (it.done) {
+                    return null;
+                }
+                const value = it.cursor.value();
+                if (it.cursor.index & 1 == 1) {
+                    _ = it.cursor.sibling();
+                    while (it.cursor.leftChild()) |_| {}
+                } else {
+                    if (it.cursor.index == 0) {
+                        it.done = true;
+                    } else {
+                        _ = it.cursor.parent();
+                    }
+                }
+                return value;
+            }
+
+            pub fn reset(it: *PostorderIterator) void {
+                it.cursor.index = 0;
+                it.done = false;
+                while (it.cursor.leftChild()) |_| {}
+            }
+        };
+
+        pub fn postorderIterator(self: *Self) PostorderIterator {
+            var it = PostorderIterator{
+                .cursor = .{
+                    .tree = self,
+                },
+            };
+            it.reset();
+            return it;
+        }
     };
 }
 
@@ -253,6 +292,49 @@ test "inorderIterator" {
         {
             var i: usize = 0;
             var it = tree.inorderIterator();
+            while (it.next()) |value| : (i += 1) {
+                try std.testing.expectEqual(data.expected_order[i], value);
+            }
+        }
+    }
+}
+
+test "postorderIterator" {
+    inline for ([_]TestData{
+        .{
+            .levels = 1,
+            .expected_order = &.{0},
+        },
+        .{
+            .levels = 2,
+            .expected_order = &.{ 1, 2, 0 },
+        },
+        .{
+            .levels = 3,
+            .expected_order = &.{ 3, 4, 1, 5, 6, 2, 0 },
+        },
+        .{
+            .levels = 4,
+            .expected_order = &.{ 7, 8, 3, 9, 10, 4, 1, 11, 12, 5, 13, 14, 6, 2, 0 },
+        },
+        .{
+            .levels = 5,
+            .expected_order = &.{ 15, 16, 7, 17, 18, 8, 3, 19, 20, 9, 21, 22, 10, 4, 1, 23, 24, 11, 25, 26, 12, 5, 27, 28, 13, 29, 30, 14, 6, 2, 0 },
+        },
+    }) |data| {
+        const Tree = StaticBinaryTree(u8, data.levels);
+        var tree = Tree.init(0);
+
+        {
+            var i: usize = 0;
+            while (i < Tree.size) : (i += 1) {
+                tree.items[i] = @intCast(u8, i);
+            }
+        }
+
+        {
+            var i: usize = 0;
+            var it = tree.postorderIterator();
             while (it.next()) |value| : (i += 1) {
                 try std.testing.expectEqual(data.expected_order[i], value);
             }
