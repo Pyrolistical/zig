@@ -161,10 +161,7 @@ pub fn expectEqual(expected: anytype, actual: @TypeOf(expected)) !void {
                     return error.TestExpectedEqual;
                 }
             } else {
-                if (actual) |actual_payload| {
-                    print("expected null, found {any}\n", .{actual_payload});
-                    return error.TestExpectedEqual;
-                }
+                try expectNull(actual);
             }
         },
 
@@ -197,6 +194,54 @@ test "expectEqual.union(enum)" {
     const a10 = T{ .a = 10 };
 
     try expectEqual(a10, a10);
+}
+
+test "expectEqual.optional" {
+    const T = ?u8;
+
+    const a: T = 10;
+    const b: T = null;
+
+    try expectEqual(@as(T, 10), a);
+    try expectEqual(@as(T, null), b);
+}
+
+/// This function is intended to be used only in tests. When the value is not
+/// an Optional or not null, prints diagnostics to stderr, then returns a
+/// test failure error.
+pub fn expectNull(actual: anytype) !void {
+    switch (@typeInfo(@TypeOf(actual))) {
+        .Optional, .Pointer => {
+            if (actual) |actual_payload| {
+                print("expected null, found {any}\n", .{actual_payload});
+                return error.TestExpectedNull;
+            }
+        },
+        else => {
+            print("expected type Optional, found type {s}\n", .{@typeName(@TypeOf(actual))});
+            return error.TestExpectedNull;
+        },
+    }
+}
+
+test expectNull {
+    const T = ?u8;
+
+    const null_t: T = null;
+    try expectNull(null_t);
+
+    const null_c_ptr: [*c]usize = null;
+    try expectNull(null_c_ptr);
+
+    // negative cases commented out to prevent printing of message
+
+    // try expectError(error.TestExpectedNull, expectNull(10));
+
+    // const non_null_t: T = 10;
+    // try expectError(error.TestExpectedNull, expectNull(non_null_t));
+
+    // const non_null_c_ptr: [*c]usize = 42;
+    // try expectError(error.TestExpectedNull, expectNull(non_null_c_ptr));
 }
 
 /// This function is intended to be used only in tests. When the formatted result of the template
