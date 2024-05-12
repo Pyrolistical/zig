@@ -17,6 +17,7 @@ const HRESULT = windows.HRESULT;
 const LARGE_INTEGER = windows.LARGE_INTEGER;
 const LPCWSTR = windows.LPCWSTR;
 const LPTHREAD_START_ROUTINE = windows.LPTHREAD_START_ROUTINE;
+const LPCSTR = windows.LPCSTR;
 const LPVOID = windows.LPVOID;
 const LPWSTR = windows.LPWSTR;
 const MODULEINFO = windows.MODULEINFO;
@@ -77,18 +78,18 @@ pub extern "kernel32" fn CancelIoEx(hFile: HANDLE, lpOverlapped: ?*OVERLAPPED) c
 
 pub extern "kernel32" fn CloseHandle(hObject: HANDLE) callconv(WINAPI) BOOL;
 
-pub extern "kernel32" fn CreateDirectoryW(lpPathName: [*:0]const u16, lpSecurityAttributes: ?*SECURITY_ATTRIBUTES) callconv(WINAPI) BOOL;
+pub extern "kernel32" fn CreateDirectoryW(lpPathName: LPCWSTR, lpSecurityAttributes: ?*SECURITY_ATTRIBUTES) callconv(WINAPI) BOOL;
 pub extern "kernel32" fn SetEndOfFile(hFile: HANDLE) callconv(WINAPI) BOOL;
 
 pub extern "kernel32" fn CreateEventExW(
     lpEventAttributes: ?*SECURITY_ATTRIBUTES,
-    lpName: [*:0]const u16,
+    lpName: ?LPCWSTR,
     dwFlags: DWORD,
     dwDesiredAccess: DWORD,
 ) callconv(WINAPI) ?HANDLE;
 
 pub extern "kernel32" fn CreateFileW(
-    lpFileName: [*:0]const u16,
+    lpFileName: LPCWSTR,
     dwDesiredAccess: DWORD,
     dwShareMode: DWORD,
     lpSecurityAttributes: ?*SECURITY_ATTRIBUTES,
@@ -128,7 +129,7 @@ pub extern "kernel32" fn CreateProcessW(
     lpProcessInformation: *PROCESS_INFORMATION,
 ) callconv(WINAPI) BOOL;
 
-pub extern "kernel32" fn CreateSymbolicLinkW(lpSymlinkFileName: [*:0]const u16, lpTargetFileName: [*:0]const u16, dwFlags: DWORD) callconv(WINAPI) BOOLEAN;
+pub extern "kernel32" fn CreateSymbolicLinkW(lpSymlinkFileName: LPCWSTR, lpTargetFileName: LPCWSTR, dwFlags: DWORD) callconv(WINAPI) BOOLEAN;
 
 pub extern "kernel32" fn CreateIoCompletionPort(FileHandle: HANDLE, ExistingCompletionPort: ?HANDLE, CompletionKey: ULONG_PTR, NumberOfConcurrentThreads: DWORD) callconv(WINAPI) ?HANDLE;
 
@@ -147,13 +148,13 @@ pub extern "kernel32" fn DeviceIoControl(
     lpOverlapped: ?*OVERLAPPED,
 ) callconv(WINAPI) BOOL;
 
-pub extern "kernel32" fn DeleteFileW(lpFileName: [*:0]const u16) callconv(WINAPI) BOOL;
+pub extern "kernel32" fn DeleteFileW(lpFileName: LPCWSTR) callconv(WINAPI) BOOL;
 
 pub extern "kernel32" fn DuplicateHandle(hSourceProcessHandle: HANDLE, hSourceHandle: HANDLE, hTargetProcessHandle: HANDLE, lpTargetHandle: *HANDLE, dwDesiredAccess: DWORD, bInheritHandle: BOOL, dwOptions: DWORD) callconv(WINAPI) BOOL;
 
 pub extern "kernel32" fn ExitProcess(exit_code: UINT) callconv(WINAPI) noreturn;
 
-pub extern "kernel32" fn FindFirstFileW(lpFileName: [*:0]const u16, lpFindFileData: *WIN32_FIND_DATAW) callconv(WINAPI) HANDLE;
+pub extern "kernel32" fn FindFirstFileW(lpFileName: LPCWSTR, lpFindFileData: *WIN32_FIND_DATAW) callconv(WINAPI) HANDLE;
 pub extern "kernel32" fn FindClose(hFindFile: HANDLE) callconv(WINAPI) BOOL;
 pub extern "kernel32" fn FindNextFileW(hFindFile: HANDLE, lpFindFileData: *WIN32_FIND_DATAW) callconv(WINAPI) BOOL;
 
@@ -194,11 +195,11 @@ pub extern "kernel32" fn GetExitCodeProcess(hProcess: HANDLE, lpExitCode: *DWORD
 
 pub extern "kernel32" fn GetFileSizeEx(hFile: HANDLE, lpFileSize: *LARGE_INTEGER) callconv(WINAPI) BOOL;
 
-pub extern "kernel32" fn GetFileAttributesW(lpFileName: [*:0]const WCHAR) callconv(WINAPI) DWORD;
+pub extern "kernel32" fn GetFileAttributesW(lpFileName: LPCWSTR) callconv(WINAPI) DWORD;
 
 pub extern "kernel32" fn GetModuleFileNameW(hModule: ?HMODULE, lpFilename: [*]u16, nSize: DWORD) callconv(WINAPI) DWORD;
 
-pub extern "kernel32" fn GetModuleHandleW(lpModuleName: ?[*:0]const WCHAR) callconv(WINAPI) ?HMODULE;
+pub extern "kernel32" fn GetModuleHandleW(lpModuleName: ?LPCWSTR) callconv(WINAPI) ?HMODULE;
 
 pub extern "kernel32" fn GetLastError() callconv(WINAPI) Win32Error;
 pub extern "kernel32" fn SetLastError(dwErrCode: Win32Error) callconv(WINAPI) void;
@@ -218,7 +219,7 @@ pub extern "kernel32" fn GetFinalPathNameByHandleW(
 ) callconv(WINAPI) DWORD;
 
 pub extern "kernel32" fn GetFullPathNameW(
-    lpFileName: [*:0]const u16,
+    lpFileName: LPCWSTR,
     nBufferLength: u32,
     lpBuffer: [*]u16,
     lpFilePart: ?*?[*:0]u16,
@@ -272,8 +273,8 @@ pub extern "kernel32" fn Module32First(hSnapshot: HANDLE, lpme: *MODULEENTRY32) 
 pub extern "kernel32" fn Module32Next(hSnapshot: HANDLE, lpme: *MODULEENTRY32) callconv(WINAPI) BOOL;
 
 pub extern "kernel32" fn MoveFileExW(
-    lpExistingFileName: [*:0]const u16,
-    lpNewFileName: [*:0]const u16,
+    lpExistingFileName: LPCWSTR,
+    lpNewFileName: ?LPCWSTR,
     dwFlags: DWORD,
 ) callconv(WINAPI) BOOL;
 
@@ -298,7 +299,7 @@ pub extern "kernel32" fn ReadFile(
     in_out_lpOverlapped: ?*OVERLAPPED,
 ) callconv(WINAPI) BOOL;
 
-pub extern "kernel32" fn RemoveDirectoryW(lpPathName: [*:0]const u16) callconv(WINAPI) BOOL;
+pub extern "kernel32" fn RemoveDirectoryW(lpPathName: LPCWSTR) callconv(WINAPI) BOOL;
 
 pub extern "kernel32" fn RtlCaptureContext(ContextRecord: *CONTEXT) callconv(WINAPI) void;
 
@@ -389,10 +390,10 @@ pub extern "kernel32" fn WriteFileEx(
     lpCompletionRoutine: LPOVERLAPPED_COMPLETION_ROUTINE,
 ) callconv(WINAPI) BOOL;
 
-pub extern "kernel32" fn LoadLibraryW(lpLibFileName: [*:0]const u16) callconv(WINAPI) ?HMODULE;
-pub extern "kernel32" fn LoadLibraryExW(lpLibFileName: [*:0]const u16, hFile: ?HANDLE, dwFlags: DWORD) callconv(WINAPI) ?HMODULE;
+pub extern "kernel32" fn LoadLibraryW(lpLibFileName: LPCWSTR) callconv(WINAPI) ?HMODULE;
+pub extern "kernel32" fn LoadLibraryExW(lpLibFileName: LPCWSTR, hFile: ?HANDLE, dwFlags: DWORD) callconv(WINAPI) ?HMODULE;
 
-pub extern "kernel32" fn GetProcAddress(hModule: HMODULE, lpProcName: [*:0]const u8) callconv(WINAPI) ?FARPROC;
+pub extern "kernel32" fn GetProcAddress(hModule: HMODULE, lpProcName: LPCSTR) callconv(WINAPI) ?FARPROC;
 
 pub extern "kernel32" fn FreeLibrary(hModule: HMODULE) callconv(WINAPI) BOOL;
 
